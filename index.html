@@ -51,7 +51,6 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
             padding-bottom: calc(75px + var(--safe-bottom));
         }
 
@@ -325,13 +324,14 @@
             height: 150px;
             border-radius: 50%;
             background: conic-gradient(
-                var(--primary-coral) 0% 35%, 
-                var(--sage-green) 35% 65%, 
-                var(--vintage-gold) 65% 85%, 
-                var(--text-muted) 85% 100%
+                var(--primary-coral) 0% 25%, 
+                var(--sage-green) 25% 50%, 
+                var(--vintage-gold) 50% 75%, 
+                var(--text-muted) 75% 100%
             );
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             margin-bottom: 15px;
+            transition: background 0.3s ease;
         }
 
         .legend-grid {
@@ -369,9 +369,97 @@
         .bg-taxi { background-color: var(--vintage-gold); }
         .bg-plane { background-color: var(--sage-green); }
 
+        /* ==========================================================================
+           新功能: 記帳互動樣式
+           ========================================================================== */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .input-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--sage-green);
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            background-color: #FAF6F2;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary-coral);
+        }
+        .btn-add {
+            background-color: var(--primary-coral);
+            color: #FFFFFF;
+            font-weight: 700;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: filter 0.2s;
+        }
+        .btn-add:active {
+            filter: brightness(0.9);
+        }
+        .expense-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-light);
+            padding-top: 10px;
+        }
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-light);
+            font-size: 13px;
+        }
+        .expense-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #e11d48;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--charcoal);
+            color: #FFF;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- 頂部提示框 -->
+    <div id="toast-msg" class="toast"></div>
 
     <div class="app-container">
         
@@ -539,7 +627,7 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-time">16:45 - 18:15</div>
-                        <div class="timeline-title">📸 張園復古柯達片場快閃 <span class="new-tag">Moved!</span></div>
+                        <div class="timeline-title">📸 張園復古柯達片場快閃</div>
                         <div class="timeline-desc">
                             搭乘地鐵回浦西，前往時尚地標「張園 W8-1Ba」。
                             <br>• 體驗超可愛的<strong>復古柯達片場與小野快閃展</strong>，重現好萊塢復古風，超級出片！
@@ -571,7 +659,7 @@
                         <div class="timeline-title">🧘 Is A Rose 落地窗高空皮拉提斯 <span class="new-tag">New!</span></div>
                         <div class="timeline-desc">
                             前往黃浦區力寶廣場【<strong>Is A Rose Pilates 新天地店</strong>】。
-                            <br>• 在超夢幻的網紅大落地窗旁，一邊俯瞰繁華街景，一邊進行深度器械皮拉提斯核心拉伸，拍照極具氛圍感！
+                            <br>• 在超夢幻的網網大落地窗旁，一邊俯瞰繁華街景，一邊進行深度器械皮拉提斯核心拉伸，拍照極具氛圍感！
                             <br>• <i>記得提前 3-7 天在大眾點評或微信小程序預約！</i>
                             <br><a href="https://maps.google.com/?q=Lippo+Plaza+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> Is A Rose 新天地店 Map</a>
                         </div>
@@ -579,7 +667,7 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-time">11:15 - 12:30</div>
-                        <div class="timeline-title">🎨 托芙・揚松「從孤島出發」特展 <span class="new-tag">Moved!</span></div>
+                        <div class="timeline-title">🎨 托芙・揚松「從孤島出發」特展</div>
                         <div class="timeline-desc">
                             前往徐匯區斜土路 2354 號 1 號樓 1 樓（離新天地極近）。
                             <br>• 免費參觀嚕嚕米創作者的黑白線稿，關於愛、勇氣與歸宿的冒險！
@@ -707,6 +795,34 @@
            ========================================================================== -->
         <div id="tab-prep" class="tab-content">
             <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-address-card"></i> 必備證件 & 數位準備</h3>
+                <div class="todo-item">
+                    <input type="checkbox" id="doc-1">
+                    <label for="doc-1" class="todo-text"><strong>台胞證 (注意確認效期！)</strong> ── 大陸通行必備！</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="doc-2">
+                    <label for="doc-2" class="todo-text"><strong>護照原件</strong> ── 台灣出境與浦東備用驗證</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="doc-3">
+                    <label for="doc-3" class="todo-text">台灣身分證 (備用放行李箱)</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="doc-4">
+                    <label for="doc-4" class="todo-text">行動電源 ── 拍照打卡、叫滴滴必備，<strong>不能寄艙</strong></label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="doc-5">
+                    <label for="doc-5" class="todo-text">充電線與插頭 (大陸扁平雙孔可通用，但帶備用轉接頭更好)</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="doc-6">
+                    <label for="doc-6" class="todo-text">備用信用卡、提款卡 (已開啟海外提款功能)</label>
+                </div>
+            </div>
+
+            <div class="card">
                 <h3 class="card-title"><i class="fa-solid fa-gift"></i> 給姐妹的驚喜禮物</h3>
                 <div class="todo-item">
                     <input type="checkbox" id="gift-1">
@@ -771,39 +887,73 @@
            TAB 5: 預算記帳 (Budget)
            ========================================================================== -->
         <div id="tab-budget" class="tab-content">
+            
+            <!-- 剩餘可用預算看板 -->
+            <div class="card" style="text-align: center;">
+                <h3 class="card-title" style="justify-content: center;"><i class="fa-solid fa-piggy-bank"></i> 剩餘預算看板</h3>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 5px;">總預算已預扣 819 元課程舞會費</p>
+                <div style="font-size: 32px; font-weight: 700; color: var(--primary-coral); margin-bottom: 5px;">
+                    ¥ <span id="remaining-budget">3,442</span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-muted);">
+                    已使用：¥ <span id="total-spent">0</span> / 總計：¥ 3,442
+                </p>
+            </div>
+
             <div class="card">
-                <h3 class="card-title"><i class="fa-solid fa-wallet"></i> 預算分配比重 (總 3,442 RMB)</h3>
-                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">已扣除課程及舞會 819 元後的可用餘額。</p>
+                <h3 class="card-title"><i class="fa-solid fa-wallet"></i> 預算比例</h3>
                 <div class="chart-box">
-                    <div class="mini-pie"></div>
+                    <div class="mini-pie" id="budget-pie"></div>
                     <div class="legend-grid">
                         <div class="legend-item">
                             <div class="color-dot" style="background-color: var(--primary-coral);"></div>
-                            <span>餐飲、生煎與大董烤鴨 (35% - 約 1200元)</span>
+                            <span>餐飲小吃 (佔比: <span id="pct-food">0</span>%)</span>
                         </div>
                         <div class="legend-item">
                             <div class="color-dot" style="background-color: var(--sage-green);"></div>
-                            <span>皮拉提斯、下午茶與足療 (30% - 約 1030元)</span>
+                            <span>娛樂/足療/皮拉提斯 (佔比: <span id="pct-play">0</span>%)</span>
                         </div>
                         <div class="legend-item">
                             <div class="color-dot" style="background-color: var(--vintage-gold);"></div>
-                            <span>機場滴滴預約與地鐵 (20% - 約 690元)</span>
+                            <span>交通與機場滴滴 (佔比: <span id="pct-transport">0</span>%)</span>
                         </div>
                         <div class="legend-item">
                             <div class="color-dot" style="background-color: var(--text-muted);"></div>
-                            <span>景點、藝術展與伴手禮 (15% - 約 522元)</span>
+                            <span>景點與伴手禮 (佔比: <span id="pct-sight">0</span>%)</span>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- 新增消費記帳功能 -->
             <div class="card">
-                <h3 class="card-title"><i class="fa-solid fa-coins"></i> 本次旅程預算總覽</h3>
-                <p style="font-size: 14px; line-height: 1.5; color: var(--charcoal);">
-                    • <strong>台幣兩萬兌換：</strong>4,261 RMB
-                    <br>• <strong>上課與舞會花費：</strong>819 RMB
-                    <br>• <strong>自由零用預算：</strong>3,442 RMB (雙人額度極其充足！)
-                </p>
+                <h3 class="card-title"><i class="fa-solid fa-circle-plus"></i> 新增消費記帳</h3>
+                <div class="input-group">
+                    <label>消費分類</label>
+                    <select id="expense-category">
+                        <option value="food">🍱 餐飲小吃</option>
+                        <option value="play">💆 娛樂 / 運動 / 足療</option>
+                        <option value="transport">🚕 交通 / 滴滴打車</option>
+                        <option value="sight">🛍️ 景點 / 伴手禮購物</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>金額 (RMB)</label>
+                    <input type="number" id="expense-amount" placeholder="請輸入金額，例如 80" min="0">
+                </div>
+                <div class="input-group">
+                    <label>消費備忘</label>
+                    <input type="text" id="expense-note" placeholder="例如：大董烤鴨、小楊生煎">
+                </div>
+                <button class="btn-add" onclick="addExpenseItem()">記一筆消費</button>
+            </div>
+
+            <!-- 歷史帳目明細 -->
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-receipt"></i> 消費明細清單</h3>
+                <div class="expense-list" id="expense-items-container">
+                    <!-- 記帳明細會動態載入到這裡 -->
+                </div>
             </div>
         </div>
 
@@ -834,7 +984,7 @@
     </div>
 
     <!-- ==========================================================================
-       6. 互動 JavaScript (Vanila JS, 極度輕量無外部依赖)
+       6. 互動 JavaScript (Vanila JS, 包含 LocalStorage 與 記帳邏輯)
        ========================================================================== -->
     <script>
         // 頁籤切換
@@ -871,6 +1021,171 @@
             const dayContents = document.querySelectorAll('.day-content');
             dayContents.forEach(content => content.style.display = 'none');
             document.getElementById('day' + dayNum + '-content').style.display = 'block';
+        }
+
+        // 自訂簡單 Toast 提示框
+        function showToast(message) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerText = message;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2500);
+        }
+
+        /* ==========================================================================
+           7. 互動記帳資料處理 (LocalStorage Logic)
+           ========================================================================== */
+        // 初始設定自由預算為 3442 RMB
+        const INITIAL_BUDGET = 3442;
+        let expenses = [];
+
+        // 初始化載入
+        window.onload = function() {
+            // 從 LocalStorage 載入資料
+            const storedExpenses = localStorage.getItem('shanghai_swing_expenses');
+            if (storedExpenses) {
+                expenses = JSON.parse(storedExpenses);
+            } else {
+                // 若為首次打開，預先寫入幾筆行程規劃的範例帳目，供她們參考/刪除
+                expenses = [
+                    { id: 1, category: 'transport', amount: 80, note: 'Day 1 磁浮列車雙人' },
+                    { id: 2, category: 'food', amount: 250, note: 'Day 2 RAC/O mills 早午餐' },
+                    { id: 3, category: 'play', amount: 360, note: 'Day 4 大班雙人足療預留' }
+                ];
+                saveToLocalStorage();
+            }
+            updateBudgetUI();
+        }
+
+        // 儲存資料
+        function saveToLocalStorage() {
+            localStorage.setItem('shanghai_swing_expenses', JSON.stringify(expenses));
+        }
+
+        // 新增一筆帳目
+        function addExpenseItem() {
+            const categorySelect = document.getElementById('expense-category');
+            const amountInput = document.getElementById('expense-amount');
+            const noteInput = document.getElementById('expense-note');
+
+            const category = categorySelect.value;
+            const amount = parseFloat(amountInput.value);
+            const note = noteInput.value.trim();
+
+            if (isNaN(amount) || amount <= 0) {
+                showToast('❌ 請輸入有效的金額金額！');
+                return;
+            }
+
+            if (!note) {
+                showToast('❌ 請輸入消費備忘內容！');
+                return;
+            }
+
+            const newExpense = {
+                id: Date.now(),
+                category: category,
+                amount: amount,
+                note: note
+            };
+
+            expenses.push(newExpense);
+            saveToLocalStorage();
+            updateBudgetUI();
+
+            // 清空輸入欄位
+            amountInput.value = '';
+            noteInput.value = '';
+            showToast('✅ 記帳成功！');
+        }
+
+        // 刪除一筆帳目
+        function deleteExpenseItem(id) {
+            expenses = expenses.filter(item => item.id !== id);
+            saveToLocalStorage();
+            updateBudgetUI();
+            showToast('🗑️ 帳目已成功刪除');
+        }
+
+        // 核心：更新記帳 UI 與圓餅圖
+        function updateBudgetUI() {
+            const container = document.getElementById('expense-items-container');
+            container.innerHTML = '';
+
+            let totalSpent = 0;
+            let catTotals = { food: 0, play: 0, transport: 0, sight: 0 };
+
+            // 類別對照字串與圖示
+            const catMeta = {
+                food: { label: '🍱 餐飲', color: '#FF7B62' },
+                play: { label: '💆 娛樂', color: '#5A7D66' },
+                transport: { label: '🚕 交通', color: '#E3A857' },
+                sight: { label: '🛍️ 景點', color: '#8C867F' }
+            };
+
+            // 倒序顯示，最新記帳在最上面
+            const renderList = [...expenses].reverse();
+
+            renderList.forEach(item => {
+                totalSpent += item.amount;
+                catTotals[item.category] += item.amount;
+
+                // 產生 HTML
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'expense-item';
+                itemDiv.innerHTML = `
+                    <div class="expense-info">
+                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:${catMeta[item.category].color}"></span>
+                        <strong>¥${item.amount}</strong> 
+                        <span style="color:var(--text-muted); font-size:12px;">(${catMeta[item.category].label})</span>
+                        <span style="margin-left: 5px;">${item.note}</span>
+                    </div>
+                    <button class="btn-delete" onclick="deleteExpenseItem(${item.id})"><i class="fa-solid fa-trash-can"></i></button>
+                `;
+                container.appendChild(itemDiv);
+            });
+
+            if (expenses.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:15px 0;">目前尚無記帳資料</div>`;
+            }
+
+            // 更新剩餘預算、已花費
+            const remaining = Math.max(0, INITIAL_BUDGET - totalSpent);
+            document.getElementById('remaining-budget').innerText = remaining.toLocaleString();
+            document.getElementById('total-spent').innerText = totalSpent.toLocaleString();
+
+            // 計算百分比與動態圓餅圖
+            let foodPct = 0, playPct = 0, transPct = 0, sightPct = 0;
+            if (totalSpent > 0) {
+                foodPct = Math.round((catTotals.food / totalSpent) * 100);
+                playPct = Math.round((catTotals.play / totalSpent) * 100);
+                transPct = Math.round((catTotals.transport / totalSpent) * 100);
+                sightPct = 100 - (foodPct + playPct + transPct); // 確保加總為100%
+                if (sightPct < 0) sightPct = 0;
+            }
+
+            document.getElementById('pct-food').innerText = foodPct;
+            document.getElementById('pct-play').innerText = playPct;
+            document.getElementById('pct-transport').innerText = transPct;
+            document.getElementById('pct-sight').innerText = sightPct;
+
+            // 動態更換 conic-gradient 圓餅圖樣式
+            const pie = document.getElementById('budget-pie');
+            if (totalSpent === 0) {
+                // 如果沒有任何開銷，顯示灰色占滿
+                pie.style.background = 'conic-gradient(#EFEAE4 0% 100%)';
+            } else {
+                const seg1 = foodPct;
+                const seg2 = seg1 + playPct;
+                const seg3 = seg2 + transPct;
+                pie.style.background = `conic-gradient(
+                    var(--primary-coral) 0% ${seg1}%, 
+                    var(--sage-green) ${seg1}% ${seg2}%, 
+                    var(--vintage-gold) ${seg2}% ${seg3}%, 
+                    var(--text-muted) ${seg3}% 100%
+                )`;
+            }
         }
     </script>
 </body>
