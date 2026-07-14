@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>上海閨蜜爵士搖擺之旅 2026</title>
+    <!-- 引入美字與圖示 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,600;0,700;1,400&family=Quicksand:wght=400;600;700&family=Noto+Sans+TC:wght=400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           1. 變數與基礎設定 (Chic Retro Swing App Style)
+           ========================================================================== */
+        :root {
+            --bg-color: #FAF6F2;       /* 溫暖柔和馬卡龍奶油白 */
+            --primary-coral: #FF7B62;  /* 復古暖珊瑚橘 */
+            --sage-green: #5A7D66;     /* 靜謐鼠尾草綠 */
+            --vintage-gold: #E3A857;   /* 懷舊芥末黃 */
+            --charcoal: #2C2B2A;       /* 柔和黑炭灰 */
+            --text-muted: #8C867F;     /* 質感泥灰 */
+            --card-bg: #FFFFFF;        /* 純白卡片 */
+            --border-light: #EFEAE4;   /* 細緻邊框 */
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
+            background-color: #ece7e1;
+            color: var(--charcoal);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* 限制手機版寬度，使其在桌機瀏覽時也有手機 App 效果 */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+            padding-bottom: calc(75px + var(--safe-bottom));
+        }
+
+        /* ==========================================================================
+           2. App 頂部 Bar & 首頁橫幅
+           ========================================================================== */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-light);
+            padding: 15px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', 'Noto Sans TC', serif;
+            font-size: 20px;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        header h1 span {
+            color: var(--primary-coral);
+        }
+
+        header .subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* ==========================================================================
+           3. 底部導航列 (Tab Navigation)
+           ========================================================================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 calc(10px + var(--safe-bottom)) 0;
+            z-index: 200;
+            box-shadow: 0 -4px 15px rgba(90, 80, 70, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            flex: 1;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-coral);
+        }
+
+        /* ==========================================================================
+           4. 頁面內容切換區域 (Tabs Container)
+           ========================================================================== */
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ==========================================================================
+           5. 元件樣式 (卡片、按鈕、地標標籤、天數切換)
+           ========================================================================== */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 12px rgba(90, 80, 70, 0.02);
+            position: relative;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', 'Noto Sans TC', serif;
+            font-size: 18px;
+            color: var(--sage-green);
+            margin: 0 0 12px 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .day-badge {
+            background-color: #EAF4EC;
+            color: var(--sage-green);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .map-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--sage-green);
+            color: #FFFFFF !important;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(90, 125, 102, 0.2);
+        }
+
+        .map-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* 每日行程時間軸樣式 */
+        .day-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+        
+        .day-nav::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome/Safari */
+        }
+
+        .day-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-light);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--charcoal);
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .day-btn.active {
+            background-color: var(--primary-coral);
+            color: #FFFFFF;
+            border-color: var(--primary-coral);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px dashed #EFEAE4;
+            margin-left: 10px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -27px;
+            top: 3px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary-coral);
+            border: 2px solid var(--bg-color);
+        }
+
+        .timeline-time {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-coral);
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 6px;
+        }
+
+        .timeline-title .new-tag {
+            background-color: var(--vintage-gold);
+            color: #FFFFFF;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+            font-weight: 700;
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* 待辦事項/行李清單打勾效果 */
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .todo-item input[type="checkbox"] {
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-coral);
+        }
+
+        .todo-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .todo-item input[type="checkbox"]:checked + .todo-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* 預算圓餅圖 */
+        .chart-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .mini-pie {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary-coral) 0% 35%, 
+                var(--sage-green) 35% 65%, 
+                var(--vintage-gold) 65% 85%, 
+                var(--text-muted) 85% 100%
+            );
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            margin-bottom: 15px;
+        }
+
+        .legend-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* 交通詳情樣式 */
+        .transit-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            margin-right: 6px;
+        }
+        .bg-train { background-color: var(--primary-coral); }
+        .bg-subway { background-color: #3b82f6; }
+        .bg-taxi { background-color: var(--vintage-gold); }
+        .bg-plane { background-color: var(--sage-green); }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- App Header -->
+        <header>
+            <h1>上海閨蜜<span>爵士搖擺</span>之旅</h1>
+            <div class="subtitle">AUGUST 13 - 17, 2026 • 5 DAYS 4 NIGHTS</div>
+        </header>
+
+        <!-- ==========================================================================
+           TAB 1: 每日行程 (Itinerary)
+           ========================================================================== -->
+        <div id="tab-itinerary" class="tab-content active">
+            
+            <!-- 天數快速切換 -->
+            <div class="day-nav">
+                <button class="day-btn active" onclick="switchDay(1)">Day 1</button>
+                <button class="day-btn" onclick="switchDay(2)">Day 2</button>
+                <button class="day-btn" onclick="switchDay(3)">Day 3</button>
+                <button class="day-btn" onclick="switchDay(4)">Day 4</button>
+                <button class="day-btn" onclick="switchDay(5)">Day 5</button>
+            </div>
+
+            <!-- Day 1 Itinerary -->
+            <div id="day1-content" class="day-content">
+                <span class="day-badge">8/13 (週四) 抵達上海與首堂 Balboa 課</span>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">14:40 - 16:45</div>
+                        <div class="timeline-title">✈️ 啟程飛往上海</div>
+                        <div class="timeline-desc">搭乘中國國際航空 CA196 抵達上海浦東機場 (T2)。出關並領取行李。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">18:00 - 18:08</div>
+                        <div class="timeline-title">🚄 體驗磁浮列車飆速</div>
+                        <div class="timeline-desc">憑當日機票享優惠價 40 RMB。只需 8 分鐘即達龍陽路站。
+                            <br><a href="https://maps.google.com/?q=Shanghai+Maglev+Train" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 磁浮龍陽路站 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">19:00 - 19:30</div>
+                        <div class="timeline-title">🏨 抵達飯店 Check-in</div>
+                        <div class="timeline-desc">入住長寧區延安西路 1088 號。放下行李並稍作休息、梳洗。
+                            <br><a href="https://maps.google.com/?q=1088+Yan'an+West+Road,+Changning+District,+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 飯店位置 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">19:30 - 21:30</div>
+                        <div class="timeline-title">💃 August Riff 首堂課</div>
+                        <div class="timeline-desc">
+                            <strong>Balboa 律動發動機課程</strong>
+                            <br>• Heartbeat of the Dance (快舞的秘密在慢裡)
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">21:30+</div>
+                        <div class="timeline-title">🍜 深夜熱騰騰本幫小餛飩</div>
+                        <div class="timeline-desc">在飯店附近吃碗「大富貴」或「大時代」熱騰騰小餛飩，或是使用微信外賣。</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 2 Itinerary -->
+            <div id="day2-content" class="day-content" style="display: none;">
+                <span class="day-badge">8/14 (週五) 梧桐樹散步、姐妹壁球、朋友家嚕狗與首場舞會</span>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">09:30 - 11:30</div>
+                        <div class="timeline-title">🌳 武康路散步 ＆ AMBELIE GALLERY</div>
+                        <div class="timeline-desc">
+                            與好姐妹步行梧桐樹下。
+                            <br>• <strong>武康大樓</strong>拍照打卡
+                            <br>• 拜訪 <strong>AMBELIE GALLERY</strong> (康平路21號)：特色復古家居畫廊，拍照極具文藝氣息。
+                            <br><a href="https://maps.google.com/?q=康平路21號+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> Ambelie Gallery Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">11:30 - 13:00</div>
+                        <div class="timeline-title">☕ 法租界精緻 Brunch</div>
+                        <div class="timeline-desc">在安福路或武康路找家精緻咖啡館享用美美的早午餐（推薦 O'mills 或 RAC Bar）。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">13:30 - 15:30</div>
+                        <div class="timeline-title">🎾 姐妹壁球對決 ＠ 克拉壁球中心 <span class="new-tag">New!</span></div>
+                        <div class="timeline-desc">
+                            前往興義路 99 號世貿展館北區 4F。
+                            <br>• 體驗全上海最大的頂級壁球館，在無風雨影響的室內空間，跟好姊妹來一場暴汗的壁球對決！
+                            <br><a href="https://maps.google.com/?q=克拉壁球中心+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 克拉壁球中心 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">15:45 - 18:30</div>
+                        <div class="timeline-title">🐶 朋友家溫馨嚕狗 ＆ 喝茶時光 <span class="new-tag">New!</span></div>
+                        <div class="timeline-desc">
+                            在跳舞前最療癒的充電行程！前往上海朋友家拜訪，吃點心、喝茶聊天，享受被可愛狗狗治癒的悠閒時光。
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">18:30 - 19:15</div>
+                        <div class="timeline-title">🥟 快速晚餐：小楊生煎／佳家湯包</div>
+                        <div class="timeline-desc">享受金黃香脆、滿滿鮮嫩肉汁的上海代表小吃，吃飽準備上課。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">19:30 - 21:30</div>
+                        <div class="timeline-title">💃 August Riff 週五營隊課</div>
+                        <div class="timeline-desc">
+                            <strong>Marie Fido 歷史靈感課</strong>
+                            <br>• Look Good, Feel Good (好看和好跳從來不是單選題)
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">21:30 - 24:00</div>
+                        <div class="timeline-title">🎺 首場週末舞會 (預估 20點開)</div>
+                        <div class="timeline-desc">營隊首場狂歡！就在住處附近。和好姐妹換上 Vintage 美裝，隨現場音樂在舞池中盡情搖擺！</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 3 Itinerary -->
+            <div id="day3-content" class="day-content" style="display: none;">
+                <span class="day-badge">8/15 (週六) 豫園經典、無敵江景 Manner、陸家嘴、張園柯達片場與盛大舞會</span>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">10:00 - 12:00</div>
+                        <div class="timeline-title">🥟 古樸豫園與南翔饅頭店</div>
+                        <div class="timeline-desc">欣賞江南古典園林，並用吸管品嚐南翔經典的巨型蟹黃湯包。
+                            <br><a href="https://maps.google.com/?q=Yu+Garden+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 豫園商城 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">12:00 - 13:30</div>
+                        <div class="timeline-title">🚢 萬國外灘與復古 2元渡輪</div>
+                        <div class="timeline-desc">漫步外灘欣賞歷史建築群。花費僅 2 元 RMB 搭乘「東金線輪渡」橫渡黃浦江前往陸家嘴。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">13:30 - 15:00</div>
+                        <div class="timeline-title">☕ Manner Coffee 北外灘無敵江景</div>
+                        <div class="timeline-desc">
+                            前往全上海視野最好的 **Manner Coffee 濱江店**。
+                            <br>• 吹著清涼大江風，隔江直面一覽無遺的「東方明珠與浦東摩天大樓群」，喝杯招牌冰燕麥拿鐵。
+                            <br><a href="https://maps.google.com/?q=Manner+Coffee+北外灘+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> Manner Coffee Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">15:00 - 16:30</div>
+                        <div class="timeline-title">🏢 陸家嘴三件套打卡</div>
+                        <div class="timeline-desc">近距離仰望高聳入雲的陸家嘴三高樓。可以去 IFC 國金中心享受商場冷氣與悠閒。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">16:45 - 18:15</div>
+                        <div class="timeline-title">📸 張園復古柯達片場快閃 <span class="new-tag">Moved!</span></div>
+                        <div class="timeline-desc">
+                            搭乘地鐵回浦西，前往時尚地標「張園 W8-1Ba」。
+                            <br>• 體驗超可愛的<strong>復古柯達片場與小野快閃展</strong>，重現好萊塢復古風，超級出片！
+                            <br><a href="https://maps.google.com/?q=張園+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 張園 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">18:30 - 20:00</div>
+                        <div class="timeline-title">🍽️ 晚餐：姥姥家常飯館</div>
+                        <div class="timeline-desc">外灘附近的超人氣本幫菜！必點經典肥嫩紅燒肉、油爆蝦與響油鱔絲。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">20:00+</div>
+                        <div class="timeline-title">🥂 週六盛大舞會派對</div>
+                        <div class="timeline-desc">今晚迎來本趟搖擺之旅的重頭戲派對！音樂、氛圍、Dancers 齊聚，感受極限搖擺的熱情！</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 4 Itinerary -->
+            <div id="day4-content" class="day-content" style="display: none;">
+                <span class="day-badge">8/16 (週日) 晨間拉伸皮拉提斯、嚕嚕米特展、蘇河書牆與石庫門新天地</span>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">09:30 - 11:00</div>
+                        <div class="timeline-title">🧘 Is A Rose 落地窗高空皮拉提斯 <span class="new-tag">New!</span></div>
+                        <div class="timeline-desc">
+                            前往黃浦區力寶廣場【<strong>Is A Rose Pilates 新天地店</strong>】。
+                            <br>• 在超夢幻的網紅大落地窗旁，一邊俯瞰繁華街景，一邊進行深度器械皮拉提斯核心拉伸，拍照極具氛圍感！
+                            <br>• <i>記得提前 3-7 天在大眾點評或微信小程序預約！</i>
+                            <br><a href="https://maps.google.com/?q=Lippo+Plaza+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> Is A Rose 新天地店 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">11:15 - 12:30</div>
+                        <div class="timeline-title">🎨 托芙・揚松「從孤島出發」特展 <span class="new-tag">Moved!</span></div>
+                        <div class="timeline-desc">
+                            前往徐匯區斜土路 2354 號 1 號樓 1 樓（離新天地極近）。
+                            <br>• 免費參觀嚕嚕米創作者的黑白線稿，關於愛、勇氣與歸宿的冒險！
+                            <br><a href="https://maps.google.com/?q=徐匯區斜土路2354號" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 孤島出發特展 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">12:30 - 13:45</div>
+                        <div class="timeline-title">📚 蘇州河畔與絕美網紅圖書館</div>
+                        <div class="timeline-desc">
+                            漫步在寧靜的蘇州河畔，探訪 **上海總商會舊址閱讀空間**。
+                            <br>• 被高聳入天、整齊對稱的超壯觀木質書牆包圍，這裡是全上海最好拍、最安靜的免費美學秘境。
+                            <br><a href="https://maps.google.com/?q=上海總商會舊址+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 蘇州河網紅書牆 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">14:00 - 17:00</div>
+                        <div class="timeline-title">🧱 上海新天地石庫門散步</div>
+                        <div class="timeline-desc">
+                            漫步在充滿懷舊石庫門里弄與現代玻璃建築交織的時尚街區。
+                            <br>• 在露天餐廳與好姐妹喝杯氣泡酒下午茶，享受最後一個愜意的午後。
+                            <br><a href="https://maps.google.com/?q=Xintiandi+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 上海新天地 Map</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">17:30 - 19:30</div>
+                        <div class="timeline-title">🦆 豪華大餐：大董烤鴨</div>
+                        <div class="timeline-desc">品嚐酥脆、入口即化的招牌烤鴨與創意中式料理。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">20:00 - 22:30</div>
+                        <div class="timeline-title">💆 雙人頂級足療放鬆</div>
+                        <div class="timeline-desc">
+                            最後一晚犒賞 dancer 雙腳！
+                            <br>• 去「大班休閒會所」享受深度腳底按摩，舒適洗去這幾天的疲憊，回去美美收拾行李。
+                            <br><a href="https://maps.google.com/?q=Taipan+Massage+Shanghai" class="map-btn" target="_blank"><i class="fa-solid fa-location-dot"></i> 大班足療 Map</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 5 Itinerary -->
+            <div id="day5-content" class="day-content" style="display: none;">
+                <span class="day-badge">8/17 (週一) 快樂返航</span>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">05:45 - 06:30</div>
+                        <div class="timeline-title">🚕 微信預約滴滴直達機場</div>
+                        <div class="timeline-desc">清晨地鐵尚未開始。在微信提早預約「滴滴快車」（車資約 150-180 RMB），由飯店直奔浦東機場 T2。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">06:30 - 08:55</div>
+                        <div class="timeline-title">🛂 機場辦退稅與最後補貨</div>
+                        <div class="timeline-desc">於日上免稅店採買。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">08:55 - 11:00</div>
+                        <div class="timeline-title">✈️ 安全返抵台灣</div>
+                        <div class="timeline-desc">搭乘吉祥航空 HO1309，11點抵達台北桃園機場 T1。完美收官！</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==========================================================================
+           TAB 2: 交通工具 (Transit)
+           ========================================================================== -->
+        <div id="tab-transit" class="tab-content">
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-train-subway"></i> 磁浮與地鐵指南</h3>
+                <p style="font-size: 14px; line-height: 1.5; color: var(--charcoal);">
+                    <span class="transit-badge bg-train">磁浮</span>單程 50 元。憑當天紙本機票或電子登機證享優惠價 <strong>40 RMB</strong>！從浦東機場 T2 僅需 8 分鐘抵達「龍陽路站」。
+                </p>
+                <p style="font-size: 14px; line-height: 1.5; color: var(--charcoal); margin-top: 10px;">
+                    <span class="transit-badge bg-subway">地鐵</span>到龍陽路後轉乘 <strong>2 號線</strong> 直接開往「江蘇路站」或「中山公園站」，最為快速。
+                </p>
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-car"></i> 滴滴打車 (Didi)</h3>
+                <p style="font-size: 14px; line-height: 1.5; color: var(--charcoal);">
+                    <span class="transit-badge bg-taxi">滴滴</span>若遇地鐵較遠或深夜跳完舞，直接用「微信小程式」呼叫滴滴。
+                    <br>• <strong>清晨去機場</strong>：Day 5 早上 5:45 行程，務必於前晚在微信預約好。車費約 150 - 180 RMB。
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-ship"></i> 黃浦江復古渡輪</h3>
+                <p style="font-size: 14px; line-height: 1.5; color: var(--charcoal);">
+                    外灘搭乘「東金線輪渡」前往陸家嘴，船票僅需 <strong>2 RMB</strong>，隨到隨搭，是跟閨蜜拍江景的復古經典玩法！
+                </p>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+           TAB 3: 閨蜜住宿 (Stay)
+           ========================================================================== -->
+        <div id="tab-stay" class="tab-content">
+            <div class="card">
+                <div class="day-badge"><i class="fa-solid fa-hotel"></i> 攜程預訂</div>
+                <h3 class="card-title" style="margin-top: 5px;">上海長寧區靜安閣大飯店</h3>
+                <p style="font-size: 14px; line-height: 1.5; color: var(--charcoal); margin-bottom: 8px;">
+                    <strong>📍 飯店地址：</strong>
+                    <br>上海長寧區延安西路 1088 號
+                </p>
+                <p style="font-size: 14px; line-height: 1.5; color: var(--text-muted); margin-bottom: 12px;">
+                    交通非常靜謐舒適。距離地鐵江蘇路站、中山公園站與上課、舞會會場都非常近，深夜跳舞後可快速返家。
+                </p>
+                <a href="https://maps.google.com/?q=1088+Yan'an+West+Road,+Changning+District,+Shanghai" class="map-btn" target="_blank">
+                    <i class="fa-solid fa-map-location-dot"></i> Google Map 一鍵導航
+                </a>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+           TAB 4: 行前&禮物 (Prep)
+           ========================================================================== -->
+        <div id="tab-prep" class="tab-content">
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-gift"></i> 給姐妹的驚喜禮物</h3>
+                <div class="todo-item">
+                    <input type="checkbox" id="gift-1">
+                    <label for="gift-1" class="todo-text"><strong>復古純棉手絹</strong>：擦汗用，舞會綁在手腕或頸間超優雅。</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="gift-2">
+                    <label for="gift-2" class="todo-text"><strong>香氛滾珠精油</strong>：舒緩疲勞，近距離跳 Balboa 保持迷人香氣。</label>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-shoe-prints"></i> Dancer & 運動行囊</h3>
+                <div class="todo-item">
+                    <input type="checkbox" id="bag-1">
+                    <label for="bag-1" class="todo-text">適合 Balboa 快舞的皮底／滑底舞鞋</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="bag-2">
+                    <label for="bag-2" class="todo-text">便攜羊皮底小鞋刷</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="bag-3">
+                    <label for="bag-3" class="todo-text">多套五、六晚舞會用的復古 Vintage 洋裝</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="bag-4">
+                    <label for="bag-4" class="todo-text">備用排汗乾爽小毛巾或小扇子</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="bag-5">
+                    <label for="bag-5" class="todo-text"><strong>專業普拉提防滑襪</strong> (Is A Rose 皮拉提斯上課必備！)</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="bag-6">
+                    <label for="bag-6" class="todo-text">室內壁球運動服 ＆ 乾淨運動鞋</label>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-signal"></i> 網路與預約準備</h3>
+                <div class="todo-item">
+                    <input type="checkbox" id="net-1">
+                    <label for="net-1" class="todo-text">免翻牆、包含 VPN 的中港澳 eSIM 或網路卡</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="net-2">
+                    <label for="net-2" class="todo-text">微信支付綁定並存入 4,261 人民幣</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="net-3">
+                    <label for="net-3" class="todo-text">提前微信預約 Is A Rose Pilates 新天地體驗課</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="net-4">
+                    <label for="net-4" class="todo-text">手機下載：高德地圖、大眾點評、微信小程式</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+           TAB 5: 預算記帳 (Budget)
+           ========================================================================== -->
+        <div id="tab-budget" class="tab-content">
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-wallet"></i> 預算分配比重 (總 3,442 RMB)</h3>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">已扣除課程及舞會 819 元後的可用餘額。</p>
+                <div class="chart-box">
+                    <div class="mini-pie"></div>
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <div class="color-dot" style="background-color: var(--primary-coral);"></div>
+                            <span>餐飲、生煎與大董烤鴨 (35% - 約 1200元)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-dot" style="background-color: var(--sage-green);"></div>
+                            <span>皮拉提斯、下午茶與足療 (30% - 約 1030元)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-dot" style="background-color: var(--vintage-gold);"></div>
+                            <span>機場滴滴預約與地鐵 (20% - 約 690元)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-dot" style="background-color: var(--text-muted);"></div>
+                            <span>景點、藝術展與伴手禮 (15% - 約 522元)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title"><i class="fa-solid fa-coins"></i> 本次旅程預算總覽</h3>
+                <p style="font-size: 14px; line-height: 1.5; color: var(--charcoal);">
+                    • <strong>台幣兩萬兌換：</strong>4,261 RMB
+                    <br>• <strong>上課與舞會花費：</strong>819 RMB
+                    <br>• <strong>自由零用預算：</strong>3,442 RMB (雙人額度極其充足！)
+                </p>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('itinerary')">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>每日行程</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('transit')">
+                <i class="fa-solid fa-train-subway"></i>
+                <span>交通工具</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('stay')">
+                <i class="fa-solid fa-hotel"></i>
+                <span>閨蜜住宿</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('prep')">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>行前&禮物</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('budget')">
+                <i class="fa-solid fa-wallet"></i>
+                <span>預算記帳</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==========================================================================
+       6. 互動 JavaScript (Vanila JS, 極度輕量無外部依赖)
+       ========================================================================== -->
+    <script>
+        // 頁籤切換
+        function switchTab(tabId) {
+            // 切換底部導航列高亮
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            // 找到對應點選的 nav item
+            let index = 0;
+            if (tabId === 'transit') index = 1;
+            if (tabId === 'stay') index = 2;
+            if (tabId === 'prep') index = 3;
+            if (tabId === 'budget') index = 4;
+            navItems[index].classList.add('active');
+
+            // 切換頁面內容顯示
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // 切換時回到頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 每日行程天數切換
+        function switchDay(dayNum) {
+            // 改變按鈕樣式
+            const dayBtns = document.querySelectorAll('.day-btn');
+            dayBtns.forEach(btn => btn.classList.remove('active'));
+            dayBtns[dayNum - 1].classList.add('active');
+
+            // 改變內容
+            const dayContents = document.querySelectorAll('.day-content');
+            dayContents.forEach(content => content.style.display = 'none');
+            document.getElementById('day' + dayNum + '-content').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
