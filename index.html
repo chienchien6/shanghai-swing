@@ -898,6 +898,21 @@
                 <p style="font-size: 13px; color: var(--text-muted);">
                     已使用：¥ <span id="total-spent">0</span> / 總計：¥ 3,442
                 </p>
+                <!-- 新增：分帳結算面板 -->
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-light); text-align: left;">
+                    <h4 style="font-size: 13px; color: var(--sage-green); margin: 0 0 10px 0; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+                        <span>👭 閨蜜雙人分帳結算</span>
+                        <span id="settlement-status" style="font-weight: 800;">計算中...</span>
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; color: var(--charcoal);">
+                        <div style="background-color: #FAF6F2; padding: 8px 10px; border-radius: 8px;">
+                            🙋 我累計墊付：<br><strong style="font-size: 14px; color: var(--primary-coral);">¥<span id="my-paid-total">0</span></strong>
+                        </div>
+                        <div style="background-color: #FAF6F2; padding: 8px 10px; border-radius: 8px;">
+                            👭 閨蜜累計墊付：<br><strong style="font-size: 14px; color: var(--sage-green);">¥<span id="friend-paid-total">0</span></strong>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="card">
@@ -945,7 +960,22 @@
                     <label>消費備忘</label>
                     <input type="text" id="expense-note" placeholder="例如：大董烤鴨、小楊生煎">
                 </div>
-                <button class="btn-add" onclick="addExpenseItem()">記一筆消費</button>
+                <div class="input-group">
+                    <label>誰付的錢？</label>
+                    <select id="expense-payer">
+                        <option value="me">🙋 我付的</option>
+                        <option value="friend">👭 閨蜜付的</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>分帳方式</label>
+                    <select id="expense-split">
+                        <option value="half">👥 均分 (50/50)</option>
+                        <option value="me100">🙋 我全付 (我請客)</option>
+                        <option value="friend100">👭 閨蜜全付 (閨蜜請客)</option>
+                    </select>
+                </div>
+                <button class="btn-add" onclick="addExpenseItem()">記一筆消費並分帳</button>
             </div>
 
             <!-- 歷史帳目明細 -->
@@ -1047,11 +1077,11 @@
             if (storedExpenses) {
                 expenses = JSON.parse(storedExpenses);
             } else {
-                // 若為首次打開，預先寫入幾筆行程規劃的範例帳目，供她們參考/刪除
+                // 若為首次打開，預先寫入幾筆行程規劃的範例帳目，已預設分帳邏輯
                 expenses = [
-                    { id: 1, category: 'transport', amount: 80, note: 'Day 1 磁浮列車雙人' },
-                    { id: 2, category: 'food', amount: 250, note: 'Day 2 RAC/O mills 早午餐' },
-                    { id: 3, category: 'play', amount: 360, note: 'Day 4 大班雙人足療預留' }
+                    { id: 1, category: 'transport', amount: 80, note: 'Day 1 磁浮列車雙人', payer: 'me', split: 'half' },
+                    { id: 2, category: 'food', amount: 250, note: 'Day 2 RAC/O mills 早午餐', payer: 'friend', split: 'half' },
+                    { id: 3, category: 'play', amount: 360, note: 'Day 4 大班雙人足療預留', payer: 'me', split: 'half' }
                 ];
                 saveToLocalStorage();
             }
@@ -1063,18 +1093,22 @@
             localStorage.setItem('shanghai_swing_expenses', JSON.stringify(expenses));
         }
 
-        // 新增一筆帳目
+        // 新增一筆帳目（支援代墊與分帳比例）
         function addExpenseItem() {
             const categorySelect = document.getElementById('expense-category');
             const amountInput = document.getElementById('expense-amount');
             const noteInput = document.getElementById('expense-note');
+            const payerSelect = document.getElementById('expense-payer');
+            const splitSelect = document.getElementById('expense-split');
 
             const category = categorySelect.value;
             const amount = parseFloat(amountInput.value);
             const note = noteInput.value.trim();
+            const payer = payerSelect.value;
+            const split = splitSelect.value;
 
             if (isNaN(amount) || amount <= 0) {
-                showToast('❌ 請輸入有效的金額金額！');
+                showToast('❌ 請輸入有效的金額！');
                 return;
             }
 
@@ -1087,7 +1121,9 @@
                 id: Date.now(),
                 category: category,
                 amount: amount,
-                note: note
+                note: note,
+                payer: payer,
+                split: split
             };
 
             expenses.push(newExpense);
@@ -1097,7 +1133,7 @@
             // 清空輸入欄位
             amountInput.value = '';
             noteInput.value = '';
-            showToast('✅ 記帳成功！');
+            showToast('✅ 記帳並分帳成功！');
         }
 
         // 刪除一筆帳目
@@ -1108,13 +1144,18 @@
             showToast('🗑️ 帳目已成功刪除');
         }
 
-        // 核心：更新記帳 UI 與圓餅圖
+        // 核心：更新記帳 UI、結算面板與圓餅圖
         function updateBudgetUI() {
             const container = document.getElementById('expense-items-container');
             container.innerHTML = '';
 
             let totalSpent = 0;
             let catTotals = { food: 0, play: 0, transport: 0, sight: 0 };
+            
+            // 雙人結算變數
+            let myPaid = 0;       // 我代墊的總額
+            let friendPaid = 0;   // 閨蜜代墊的總額
+            let myShareTotal = 0; // 我應該負擔的總額
 
             // 類別對照字串與圖示
             const catMeta = {
@@ -1131,6 +1172,32 @@
                 totalSpent += item.amount;
                 catTotals[item.category] += item.amount;
 
+                // 1. 誰代墊付款
+                const paidByMe = (item.payer === 'me' || !item.payer); // 舊資料預設為我付
+                if (paidByMe) {
+                    myPaid += item.amount;
+                } else {
+                    friendPaid += item.amount;
+                }
+
+                // 2. 依據分帳比例計算「我」應負擔的金額
+                let myShare = 0;
+                const splitWay = item.split || 'half'; // 舊資料預設均分
+                if (splitWay === 'half') {
+                    myShare = item.amount / 2;
+                } else if (splitWay === 'me100') {
+                    myShare = item.amount;
+                } else if (splitWay === 'friend100') {
+                    myShare = 0;
+                }
+                myShareTotal += myShare;
+
+                // UI 顯示標籤
+                const payerText = paidByMe ? '我付' : '閨蜜付';
+                let splitText = '均分';
+                if (splitWay === 'me100') splitText = '我請客';
+                if (splitWay === 'friend100') splitText = '閨蜜請';
+
                 // 產生 HTML
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'expense-item';
@@ -1138,7 +1205,7 @@
                     <div class="expense-info">
                         <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:${catMeta[item.category].color}"></span>
                         <strong>¥${item.amount}</strong> 
-                        <span style="color:var(--text-muted); font-size:12px;">(${catMeta[item.category].label})</span>
+                        <span style="color:var(--text-muted); font-size:11px;">(${catMeta[item.category].label} · ${payerText} · ${splitText})</span>
                         <span style="margin-left: 5px;">${item.note}</span>
                     </div>
                     <button class="btn-delete" onclick="deleteExpenseItem(${item.id})"><i class="fa-solid fa-trash-can"></i></button>
@@ -1154,6 +1221,21 @@
             const remaining = Math.max(0, INITIAL_BUDGET - totalSpent);
             document.getElementById('remaining-budget').innerText = remaining.toLocaleString();
             document.getElementById('total-spent').innerText = totalSpent.toLocaleString();
+
+            // 更新分帳結算面板
+            document.getElementById('my-paid-total').innerText = myPaid.toLocaleString();
+            document.getElementById('friend-paid-total').innerText = friendPaid.toLocaleString();
+
+            // 精確結算公式：(我代墊的錢) 減掉 (我應該付的錢)。如果大於 0 代表閨蜜要給我錢，反之我給閨蜜錢。
+            const settlementStatus = document.getElementById('settlement-status');
+            const balance = myPaid - myShareTotal;
+            if (balance > 0.05) {
+                settlementStatus.innerHTML = `👉 閨蜜應給妳 <span style="font-size:14px; color:var(--primary-coral); font-weight:800;">¥${balance.toFixed(1)}</span>`;
+            } else if (balance < -0.05) {
+                settlementStatus.innerHTML = `👉 妳應給閨蜜 <span style="font-size:14px; color:var(--sage-green); font-weight:800;">¥${Math.abs(balance).toFixed(1)}</span>`;
+            } else {
+                settlementStatus.innerHTML = `<span style="color:var(--text-muted);">💸 已兩清</span>`;
+            }
 
             // 計算百分比與動態圓餅圖
             let foodPct = 0, playPct = 0, transPct = 0, sightPct = 0;
