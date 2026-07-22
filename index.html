@@ -21,6 +21,8 @@
             --vintage-gold: #E3A857;   /* 懷舊芥末黃 */
             --charcoal: #2C2B2A;       /* 柔和黑炭灰 */
             --text-muted: #8C867F;     /* 質感泥灰 */
+            --soft-blue: #6C8EBF;      /* 復古溫柔藍 */
+            --retro-pink: #E8A7A1;     /* 懷舊煙粉紅 */
             --card-bg: #FFFFFF;        /* 純白卡片 */
             --border-light: #EFEAE4;   /* 細緻邊框 */
             --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -337,7 +339,7 @@
         .legend-grid {
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
@@ -940,15 +942,23 @@
                         </div>
                         <div class="legend-item">
                             <div class="color-dot" style="background-color: var(--sage-green);"></div>
-                            <span>娛樂/足療/皮拉提斯 (佔比: <span id="pct-play">0</span>%)</span>
+                            <span>娛樂/足療 (佔比: <span id="pct-play">0</span>%)</span>
                         </div>
                         <div class="legend-item">
                             <div class="color-dot" style="background-color: var(--vintage-gold);"></div>
-                            <span>交通與機場滴滴 (佔比: <span id="pct-transport">0</span>%)</span>
+                            <span>交通工具 (佔比: <span id="pct-transport">0</span>%)</span>
                         </div>
                         <div class="legend-item">
                             <div class="color-dot" style="background-color: var(--text-muted);"></div>
-                            <span>景點與伴手禮 (佔比: <span id="pct-sight">0</span>%)</span>
+                            <span>景點購物 (佔比: <span id="pct-sight">0</span>%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-dot" style="background-color: var(--soft-blue);"></div>
+                            <span>住宿支出 (佔比: <span id="pct-stay">0</span>%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-dot" style="background-color: var(--retro-pink);"></div>
+                            <span>跳舞支出 (佔比: <span id="pct-dance">0</span>%)</span>
                         </div>
                     </div>
                 </div>
@@ -964,6 +974,8 @@
                         <option value="play">💆 娛樂 / 運動 / 足療</option>
                         <option value="transport">🚕 交通 / 滴滴打車</option>
                         <option value="sight">🛍️ 景點 / 伴手禮購物</option>
+                        <option value="stay">🏨 閨蜜住宿</option>
+                        <option value="dance">💃 搖擺跳舞支出</option>
                     </select>
                 </div>
                 <div class="input-group">
@@ -1143,11 +1155,6 @@
                 return;
             }
 
-            if (!note) {
-                showToast('❌ 請輸入消費備忘內容！');
-                return;
-            }
-
             const newExpense = {
                 id: Date.now(),
                 category: category,
@@ -1180,7 +1187,7 @@
             const container = document.getElementById('expense-items-container');
             container.innerHTML = '';
 
-            let catTotals = { food: 0, play: 0, transport: 0, sight: 0 };
+            let catTotals = { food: 0, play: 0, transport: 0, sight: 0, stay: 0, dance: 0 };
             
             // 雙人結算與個人花費變數
             let myPaid = 0;       // 我代墊的總額
@@ -1189,10 +1196,12 @@
 
             // 類別對照字串與圖示
             const catMeta = {
-                food: { label: '🍱 餐飲', color: '#FF7B62' },
-                play: { label: '💆 娛樂', color: '#5A7D66' },
-                transport: { label: '🚕 交通', color: '#E3A857' },
-                sight: { label: '🛍️ 景點', color: '#8C867F' }
+                food: { label: '🍱 餐飲', color: 'var(--primary-coral)' },
+                play: { label: '💆 娛樂', color: 'var(--sage-green)' },
+                transport: { label: '🚕 交通', color: 'var(--vintage-gold)' },
+                sight: { label: '🛍️ 景點', color: 'var(--text-muted)' },
+                stay: { label: '🏨 住宿', color: 'var(--soft-blue)' },
+                dance: { label: '💃 跳舞', color: 'var(--retro-pink)' }
             };
 
             // 倒序顯示，最新記帳在最上面
@@ -1267,19 +1276,23 @@
             }
 
             // 計算百分比與動態圓餅圖 (以個人應負擔為準)
-            let foodPct = 0, playPct = 0, transPct = 0, sightPct = 0;
+            let foodPct = 0, playPct = 0, transPct = 0, sightPct = 0, stayPct = 0, dancePct = 0;
             if (myShareTotal > 0) {
                 foodPct = Math.round((catTotals.food / myShareTotal) * 100);
                 playPct = Math.round((catTotals.play / myShareTotal) * 100);
                 transPct = Math.round((catTotals.transport / myShareTotal) * 100);
-                sightPct = 100 - (foodPct + playPct + transPct); // 確保加總為100%
-                if (sightPct < 0) sightPct = 0;
+                sightPct = Math.round((catTotals.sight / myShareTotal) * 100);
+                stayPct = Math.round((catTotals.stay / myShareTotal) * 100);
+                dancePct = 100 - (foodPct + playPct + transPct + sightPct + stayPct); // 確保加總為100%
+                if (dancePct < 0) dancePct = 0;
             }
 
             document.getElementById('pct-food').innerText = foodPct;
             document.getElementById('pct-play').innerText = playPct;
             document.getElementById('pct-transport').innerText = transPct;
             document.getElementById('pct-sight').innerText = sightPct;
+            document.getElementById('pct-stay').innerText = stayPct;
+            document.getElementById('pct-dance').innerText = dancePct;
 
             // 動態更換 conic-gradient 圓餅圖樣式
             const pie = document.getElementById('budget-pie');
@@ -1290,11 +1303,15 @@
                 const seg1 = foodPct;
                 const seg2 = seg1 + playPct;
                 const seg3 = seg2 + transPct;
+                const seg4 = seg3 + sightPct;
+                const seg5 = seg4 + stayPct;
                 pie.style.background = `conic-gradient(
                     var(--primary-coral) 0% ${seg1}%, 
                     var(--sage-green) ${seg1}% ${seg2}%, 
                     var(--vintage-gold) ${seg2}% ${seg3}%, 
-                    var(--text-muted) ${seg3}% 100%
+                    var(--text-muted) ${seg3}% ${seg4}%, 
+                    var(--soft-blue) ${seg4}% ${seg5}%, 
+                    var(--retro-pink) ${seg5}% 100%
                 )`;
             }
         }
