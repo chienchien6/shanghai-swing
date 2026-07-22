@@ -909,8 +909,8 @@
                 <div style="font-size: 32px; font-weight: 700; color: var(--primary-coral); margin-bottom: 5px;">
                     ¥ <span id="remaining-budget">3,442</span>
                 </div>
-                <p style="font-size: 13px; color: var(--text-muted);">
-                    已使用：¥ <span id="total-spent">0</span> / 總計：¥ 3,442
+                <p style="font-size: 13px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap;">
+                    個人已用：¥ <span id="total-spent">0</span> / 個人預算：¥ <span id="total-budget-display" onclick="toggleEditBudget()" style="cursor: pointer; border-bottom: 1px dashed var(--primary-coral);" title="點擊編輯預算">3,442</span><input type="number" id="total-budget-input" style="display: none; width: 70px; font-size: 12px; padding: 2px 4px; border: 1px solid var(--border-light); border-radius: 6px; text-align: center; font-family: inherit;" min="0">
                 </p>
                 <!-- 新增：分帳結算面板 -->
                 <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-light); text-align: left;">
@@ -930,7 +930,7 @@
             </div>
 
             <div class="card">
-                <h3 class="card-title"><i class="fa-solid fa-wallet"></i> 預算比例</h3>
+                <h3 class="card-title"><i class="fa-solid fa-wallet"></i> 個人預算花費比例</h3>
                 <div class="chart-box">
                     <div class="mini-pie" id="budget-pie"></div>
                     <div class="legend-grid">
@@ -1081,12 +1081,17 @@
            7. 互動記帳資料處理 (LocalStorage Logic)
            ========================================================================== */
         // 初始設定自由預算為 3442 RMB
-        const INITIAL_BUDGET = 3442;
+        let totalBudget = 3442;
         let expenses = [];
 
         // 初始化載入
         window.onload = function() {
-            // 從 LocalStorage 載入資料
+            // 從 LocalStorage 載入預算與開銷資料
+            const storedBudget = localStorage.getItem('shanghai_swing_total_budget');
+            if (storedBudget) {
+                totalBudget = parseFloat(storedBudget);
+            }
+
             const storedExpenses = localStorage.getItem('shanghai_swing_expenses');
             if (storedExpenses) {
                 expenses = JSON.parse(storedExpenses);
@@ -1099,6 +1104,18 @@
                 ];
                 saveToLocalStorage();
             }
+
+            // 綁定預算編輯事件
+            const budgetInput = document.getElementById('total-budget-input');
+            budgetInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveBudget();
+                }
+            });
+            budgetInput.addEventListener('blur', function() {
+                saveBudget();
+            });
+
             updateBudgetUI();
         }
 
@@ -1163,13 +1180,12 @@
             const container = document.getElementById('expense-items-container');
             container.innerHTML = '';
 
-            let totalSpent = 0;
             let catTotals = { food: 0, play: 0, transport: 0, sight: 0 };
             
-            // 雙人結算變數
+            // 雙人結算與個人花費變數
             let myPaid = 0;       // 我代墊的總額
             let friendPaid = 0;   // 閨蜜代墊的總額
-            let myShareTotal = 0; // 我應該負擔的總額
+            let myShareTotal = 0; // 我應該負擔的總額 (個人已用總額)
 
             // 類別對照字串與圖示
             const catMeta = {
@@ -1183,9 +1199,6 @@
             const renderList = [...expenses].reverse();
 
             renderList.forEach(item => {
-                totalSpent += item.amount;
-                catTotals[item.category] += item.amount;
-
                 // 1. 誰代墊付款
                 const paidByMe = (item.payer === 'me' || !item.payer); // 舊資料預設為我付
                 if (paidByMe) {
@@ -1205,6 +1218,7 @@
                     myShare = 0;
                 }
                 myShareTotal += myShare;
+                catTotals[item.category] += myShare; // 依據個人負擔份額計算分類統計
 
                 // UI 顯示標籤
                 const payerText = paidByMe ? '我付' : '閨蜜付';
@@ -1231,10 +1245,11 @@
                 container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:15px 0;">目前尚無記帳資料</div>`;
             }
 
-            // 更新剩餘預算、已花費
-            const remaining = Math.max(0, INITIAL_BUDGET - totalSpent);
+            // 更新剩餘預算、已花費 (以個人應負擔為準)
+            const remaining = Math.max(0, totalBudget - myShareTotal);
             document.getElementById('remaining-budget').innerText = remaining.toLocaleString();
-            document.getElementById('total-spent').innerText = totalSpent.toLocaleString();
+            document.getElementById('total-spent').innerText = myShareTotal.toLocaleString();
+            document.getElementById('total-budget-display').innerText = totalBudget.toLocaleString();
 
             // 更新分帳結算面板
             document.getElementById('my-paid-total').innerText = myPaid.toLocaleString();
@@ -1251,12 +1266,12 @@
                 settlementStatus.innerHTML = `<span style="color:var(--text-muted);">💸 已兩清</span>`;
             }
 
-            // 計算百分比與動態圓餅圖
+            // 計算百分比與動態圓餅圖 (以個人應負擔為準)
             let foodPct = 0, playPct = 0, transPct = 0, sightPct = 0;
-            if (totalSpent > 0) {
-                foodPct = Math.round((catTotals.food / totalSpent) * 100);
-                playPct = Math.round((catTotals.play / totalSpent) * 100);
-                transPct = Math.round((catTotals.transport / totalSpent) * 100);
+            if (myShareTotal > 0) {
+                foodPct = Math.round((catTotals.food / myShareTotal) * 100);
+                playPct = Math.round((catTotals.play / myShareTotal) * 100);
+                transPct = Math.round((catTotals.transport / myShareTotal) * 100);
                 sightPct = 100 - (foodPct + playPct + transPct); // 確保加總為100%
                 if (sightPct < 0) sightPct = 0;
             }
@@ -1268,7 +1283,7 @@
 
             // 動態更換 conic-gradient 圓餅圖樣式
             const pie = document.getElementById('budget-pie');
-            if (totalSpent === 0) {
+            if (myShareTotal === 0) {
                 // 如果沒有任何開銷，顯示灰色占滿
                 pie.style.background = 'conic-gradient(#EFEAE4 0% 100%)';
             } else {
@@ -1282,6 +1297,39 @@
                     var(--text-muted) ${seg3}% 100%
                 )`;
             }
+        }
+
+        // 切換編輯總預算
+        function toggleEditBudget() {
+            const displaySpan = document.getElementById('total-budget-display');
+            const inputField = document.getElementById('total-budget-input');
+
+            if (inputField.style.display === 'none') {
+                inputField.value = totalBudget;
+                displaySpan.style.display = 'none';
+                inputField.style.display = 'inline-block';
+                inputField.focus();
+                inputField.select();
+            }
+        }
+
+        function saveBudget() {
+            const displaySpan = document.getElementById('total-budget-display');
+            const inputField = document.getElementById('total-budget-input');
+
+            if (inputField.style.display === 'none') return;
+
+            const val = parseFloat(inputField.value);
+            if (!isNaN(val) && val >= 0) {
+                totalBudget = val;
+                localStorage.setItem('shanghai_swing_total_budget', totalBudget);
+                updateBudgetUI();
+                showToast('✅ 預算已更新！');
+            } else {
+                showToast('❌ 請輸入有效的金額！');
+            }
+            displaySpan.style.display = '';
+            inputField.style.display = 'none';
         }
     </script>
 </body>
